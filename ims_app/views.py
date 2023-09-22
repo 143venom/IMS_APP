@@ -79,7 +79,7 @@ class CompanyInfoApiView(GenericAPIView):
     serializer_class = CompanyInfoSerializer
     filter_backends = [DjangoFilterBackend,filters.SearchFilter]
     # filterset_fields = ['address']
-    search_fields = ['address','name']
+    search_fields = ['name','address','email','contact_no']
     permission_classes = [IsAuthenticated,CustomModelPermission]
 
     def get(self,request):
@@ -145,6 +145,9 @@ class ProductTypeApiView(GenericAPIView):
     queryset_model = ProductType
     queryset = ProductType.objects.all()
     serializer_class = ProductTypeSerializer
+    filter_backends = [DjangoFilterBackend,filters.SearchFilter]
+    # filterset_fields = ['address']
+    search_fields = ['name']
     permission_classes = [IsAuthenticated,CustomModelPermission]
 
     def post(self, request):
@@ -202,6 +205,8 @@ class ProductsApiView(GenericAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductsSerializer
     filter_backends = [DjangoFilterBackend,filters.SearchFilter]
+    # filterset_fields = ['address']
+    search_fields = ['name','discription']
     permission_classes = [IsAuthenticated,CustomModelPermission]
 
     def post(self,request):
@@ -258,6 +263,8 @@ class BuyerInfoApiView(GenericAPIView):
     queryset = BuyerInfo.objects.all()
     serializer_class = BuyerInfoSerializer
     filter_backends = [DjangoFilterBackend,filters.SearchFilter]
+    # filterset_fields = ['address']
+    search_fields = ['name','address','email','contact_no']
     permission_classes = [IsAuthenticated,CustomModelPermission]
 
     def post(self,request):
@@ -313,6 +320,8 @@ class SellerInfoApiView(GenericAPIView):
     queryset = SellerInfo.objects.all()
     serializer_class = SellerInfoSerializer
     filter_backends = [DjangoFilterBackend,filters.SearchFilter]
+    # filterset_fields = ['address']
+    search_fields = ['product','seller']
     permission_classes = [IsAuthenticated,CustomModelPermission]
 
     def post(self, request):
@@ -370,6 +379,8 @@ class VendorInfoApiView(GenericAPIView):
     queryset = VendorInfo.objects.all()
     serializer_class = VenderInfoSerializer
     filter_backends = [DjangoFilterBackend,filters.SearchFilter]
+    # filterset_fields = ['address']
+    search_fields = ['name','address','email','contact_no']
     permission_classes = [IsAuthenticated,CustomModelPermission]
 
     def post(self, request):
@@ -426,7 +437,8 @@ class PurchaseInfoApiView(GenericAPIView):
     queryset = PurchaseInfo.objects.all()
     serializer_class = PurchaseInfoSerializer
     filter_backends = [DjangoFilterBackend,filters.SearchFilter]
-    search_fields = '__all__'
+    # filterset_fields = ['address']
+    search_fields = ['vendor','product']
     permission_classes = [IsAuthenticated,CustomModelPermission]
 
     def post(self,request):
