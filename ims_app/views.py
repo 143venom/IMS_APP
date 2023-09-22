@@ -138,7 +138,7 @@ class GroupApiView(GenericAPIView):
         return Response({'data':serializer.data})
         
 
-class productTypeApiView(GenericAPIView):
+class ProductTypeApiView(GenericAPIView):
     queryset_model = ProductType
     queryset = ProductType.objects.all()
     serializer_class = ProductTypeSerializer
@@ -157,6 +157,41 @@ class productTypeApiView(GenericAPIView):
         filter_object = self.filter_queryset(product_type_objects)
         serializer = ProductTypeSerializer(filter_object,many=True)
         return Response({'data':serializer.data})
+
+class ProductTypeIdApiView(GenericAPIView):
+    queryset = ProductType.objects.all()
+    serializer_class = ProductTypeSerializer
+
+    def get(self, request,pk):
+        try:
+            product_type_objects = ProductType.objects.get(id=pk)
+        except:
+            return Response('Data not found!')
+        serializer = ProductsSerializer(product_type_objects)
+        return Response(serializer.data)
+    
+    def put(self, request, pk):
+        try:
+            product_type_objects = ProductType.objects.get(id=pk)
+        except:
+            return Response('data not found!')
+        serializer = ProductsSerializer(product_type_objects,data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response('data updated successfully!')
+        else:
+            return Response(serializer.errors)
+        
+    def delete(self,request, pk):
+        try:
+            product_type_objects = ProductType.objects.get(id=pk)
+        except:
+            return Response('Data not found!')
+        product_type_objects.delete()
+        return Response('data deleted successfully!')
+    
+
+
     
 class ProductsApiView(GenericAPIView):
     queryset_model = Product
@@ -219,7 +254,6 @@ class BuyerInfoApiView(GenericAPIView):
     serializer_class = BuyerInfoSerializer
     filter_backends = [DjangoFilterBackend,filters.SearchFilter]
 
-
     def post(self,request):
         serializer = BuyerInfoSerializer(data=request.data)
         if serializer.is_valid():
@@ -234,13 +268,37 @@ class BuyerInfoApiView(GenericAPIView):
         serializer = BuyerInfoSerializer(filter_object, many=True)
         return Response({'data':serializer.data})
     
-    def delete(self, request, pk):
+class BuyerInfoIdApiView(GenericAPIView):
+    queryset = BuyerInfo.objects.all()
+    serializer_class = BuyerInfoSerializer
+
+    def get(self,request,pk):
         try:
             buyer_info_objects = BuyerInfo.objects.get(id=pk)
         except:
-            return Response('Data not found!')
+            return Response('data not found!')
+        serializer = BuyerInfoSerializer(buyer_info_objects)
+        return Response(serializer.data)
+    
+    def put(self, request, pk):
+        try:
+            buyer_info_objects = BuyerInfo.objects.get(id=pk)
+        except:
+            return Response('data not found!')
+        serializer = BuyerInfoSerializer(buyer_info_objects,data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response('data update successfully!')
+        else:
+            return Response(serializer.errors)
+        
+    def delete(self,request,pk):
+        try:
+            buyer_info_objects = BuyerInfo.objects.get(id=pk)
+        except:
+            return Response('data not found!')
         buyer_info_objects.delete()
-        return Response('Data deleted successfully!')
+        return Response('data deleted successfully!')
     
 
 class SellerInfoApiView(GenericAPIView):
@@ -264,12 +322,45 @@ class SellerInfoApiView(GenericAPIView):
         return Response({'data':serializer.data})
     
 
+class SellerInfoIdApiView(GenericAPIView):
+    queryset = SellerInfo.objects.all()
+    serializer_class = SellerInfoSerializer
+
+    def get(self,request,pk):
+        try:
+            seller_info_objects = SellerInfo.objects.get(id=pk)
+        except:
+            return Response('data no found!')
+        serializer = SellerInfoSerializer(seller_info_objects)
+        return Response(serializer.data)
+    
+    def put(self, request, pk):
+        try:
+            seller_info_objects = SellerInfo.objects.get(id=pk)
+        except:
+            return Response('data not found!')
+        serializer = SellerInfoSerializer(seller_info_objects,data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response('data update successfully!')
+        else:
+            return Response(serializer.errors)
+        
+    def delete(self, request, pk):
+        try:
+            seller_info_objects = SellerInfo.objects.get(id=pk)
+        except:
+            return Response('data not found!')
+        seller_info_objects.delete()
+        return Response('data deleted successfully!')
+
+    
+
 class VendorInfoApiView(GenericAPIView):
     queryset_model = VendorInfo
     queryset = VendorInfo.objects.all()
     serializer_class = VenderInfoSerializer
     filter_backends = [DjangoFilterBackend,filters.SearchFilter]
-
 
     def post(self, request):
         serializer = VenderInfoSerializer(data=request.data)
@@ -286,6 +377,38 @@ class VendorInfoApiView(GenericAPIView):
         return Response({'data':serializer.data})
     
 
+class VendorInfoIdApiView(GenericAPIView):
+    queryset = VendorInfo.objects.all()
+    serializer_class = VenderInfoSerializer
+
+    def get(self, request, pk):
+        try:
+            vendor_info_objects = VendorInfo.objects.get(id=pk)
+        except:
+            return Response('data not found!')
+        serializer = VenderInfoSerializer(vendor_info_objects)
+        return Response(serializer.data)
+    
+    def put(self, request, pk):
+        try:
+            vendor_info_objects = VendorInfo.objects.get(id=pk)
+        except:
+            return Response('data not found!')
+        serializer = VenderInfoSerializer(vendor_info_objects,data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response('data update successfully')
+        else:
+            return Response(serializer.errors)
+        
+    def delete(self, request,pk):
+        try:
+            vendor_info_objects = VendorInfo.objects.get(id=pk)
+        except:
+            return Response('data not found!')
+        vendor_info_objects.delete()
+        return Response('data deleted successfully!')        
+
 
 class PurchaseInfoApiView(GenericAPIView):
     queryset_model = PurchaseInfo
@@ -301,11 +424,44 @@ class PurchaseInfoApiView(GenericAPIView):
         else:
             return Response({'error':serializer.errors})
         
-    def get(self):
+    def get(self,request):
         purchase_info_objects = self.get_queryset()
         filter_objects = self.filter_queryset(purchase_info_objects)
         serializer = PurchaseInfoSerializer(filter_objects, many=True)
         return Response({'data':serializer.data})
+    
+
+class PurchaseInfoIdApiView(GenericAPIView):
+    serializer_class = PurchaseInfoSerializer
+    queryset = PurchaseInfo.objects.all()
+
+    def get(self, request, pk):
+        try:
+            purchase_info_objects = PurchaseInfo.objects.get(id=pk)
+        except:
+            return Response('data not found!')
+        serializer = PurchaseInfoSerializer(purchase_info_objects)
+        return Response(serializer.data)
+    
+    def put(self, request, pk):
+        try:
+            purchase_info_objects = PurchaseInfo.objects.get(id=pk)
+        except:
+            return Response('data not found!')
+        serializer = PurchaseInfoSerializer(purchase_info_objects,data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response('data update successfully!')
+        else:
+            return Response(serializer.errors)
+        
+    def delete(self, request, pk):
+        try:
+            purchase_info_objects = PurchaseInfo.objects.get(id=pk)
+        except:
+            return Response('data not found!')
+        purchase_info_objects.delete()
+        return Response('data deleted successfully!')
 
 
 
