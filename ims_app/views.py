@@ -25,12 +25,13 @@ from rest_framework import filters
 def login(request):
     email = request.data.get('email')
     password = request.data.get('password')
-    user = authenticate(username=email,password=password)
+    user= authenticate(username=email,password=password)
     if user == None:
-        return Response('User not found!')
+        return Response('user not found')
     else:
         token,_ = Token.objects.get_or_create(user=user)
         return Response({'token':token.key})
+                        
     
 @api_view(['POST'])
 # @permission_classes([IsAuthenticated])
@@ -129,8 +130,10 @@ class CompanyInfoIdApiView(GenericAPIView):
         return Response('Data deleted successfully!')
 
 class GroupApiView(GenericAPIView):
+    queryset_model = Group
     queryset = Group.objects.all()
     serializer_class = GroupSerializer
+    permission_classes = [IsAuthenticated,CustomModelPermission]
 
     def get(self,request):
         group_objects = self.get_queryset()
@@ -142,7 +145,7 @@ class ProductTypeApiView(GenericAPIView):
     queryset_model = ProductType
     queryset = ProductType.objects.all()
     serializer_class = ProductTypeSerializer
-    # permission_classes = [IsAuthenticated,CustomModelPermission]
+    permission_classes = [IsAuthenticated,CustomModelPermission]
 
     def post(self, request):
         serializer = ProductTypeSerializer(data=request.data)
@@ -161,6 +164,7 @@ class ProductTypeApiView(GenericAPIView):
 class ProductTypeIdApiView(GenericAPIView):
     queryset = ProductType.objects.all()
     serializer_class = ProductTypeSerializer
+    permission_classes = [IsAuthenticated,CustomModelPermission]
 
     def get(self, request,pk):
         try:
@@ -198,6 +202,7 @@ class ProductsApiView(GenericAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductsSerializer
     filter_backends = [DjangoFilterBackend,filters.SearchFilter]
+    permission_classes = [IsAuthenticated,CustomModelPermission]
 
     def post(self,request):
         serializer = ProductsSerializer(data=request.data)
@@ -218,7 +223,7 @@ class ProductsApiView(GenericAPIView):
 class ProductInfoIdApiView(GenericAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductsSerializer
-    # permission_classes = [IsAuthenticated,CustomModelPermission]
+    permission_classes = [IsAuthenticated,CustomModelPermission]
 
     def get(self,request,pk):
         try:
@@ -253,6 +258,7 @@ class BuyerInfoApiView(GenericAPIView):
     queryset = BuyerInfo.objects.all()
     serializer_class = BuyerInfoSerializer
     filter_backends = [DjangoFilterBackend,filters.SearchFilter]
+    permission_classes = [IsAuthenticated,CustomModelPermission]
 
     def post(self,request):
         serializer = BuyerInfoSerializer(data=request.data)
@@ -271,6 +277,7 @@ class BuyerInfoApiView(GenericAPIView):
 class BuyerInfoIdApiView(GenericAPIView):
     queryset = BuyerInfo.objects.all()
     serializer_class = BuyerInfoSerializer
+    permission_classes = [IsAuthenticated,CustomModelPermission]
 
     def get(self,request,pk):
         try:
@@ -306,6 +313,7 @@ class SellerInfoApiView(GenericAPIView):
     queryset = SellerInfo.objects.all()
     serializer_class = SellerInfoSerializer
     filter_backends = [DjangoFilterBackend,filters.SearchFilter]
+    permission_classes = [IsAuthenticated,CustomModelPermission]
 
     def post(self, request):
         serializer = SellerInfoSerializer(data=request.data)
@@ -325,6 +333,7 @@ class SellerInfoApiView(GenericAPIView):
 class SellerInfoIdApiView(GenericAPIView):
     queryset = SellerInfo.objects.all()
     serializer_class = SellerInfoSerializer
+    permission_classes = [IsAuthenticated,CustomModelPermission]
 
     def get(self,request,pk):
         try:
@@ -361,6 +370,7 @@ class VendorInfoApiView(GenericAPIView):
     queryset = VendorInfo.objects.all()
     serializer_class = VenderInfoSerializer
     filter_backends = [DjangoFilterBackend,filters.SearchFilter]
+    permission_classes = [IsAuthenticated,CustomModelPermission]
 
     def post(self, request):
         serializer = VenderInfoSerializer(data=request.data)
@@ -380,6 +390,7 @@ class VendorInfoApiView(GenericAPIView):
 class VendorInfoIdApiView(GenericAPIView):
     queryset = VendorInfo.objects.all()
     serializer_class = VenderInfoSerializer
+    permission_classes = [IsAuthenticated,CustomModelPermission]
 
     def get(self, request, pk):
         try:
@@ -415,6 +426,8 @@ class PurchaseInfoApiView(GenericAPIView):
     queryset = PurchaseInfo.objects.all()
     serializer_class = PurchaseInfoSerializer
     filter_backends = [DjangoFilterBackend,filters.SearchFilter]
+    search_fields = '__all__'
+    permission_classes = [IsAuthenticated,CustomModelPermission]
 
     def post(self,request):
         serializer = PurchaseInfoSerializer(data=request.data)
@@ -434,6 +447,7 @@ class PurchaseInfoApiView(GenericAPIView):
 class PurchaseInfoIdApiView(GenericAPIView):
     serializer_class = PurchaseInfoSerializer
     queryset = PurchaseInfo.objects.all()
+    permission_classes = [IsAuthenticated,CustomModelPermission]
 
     def get(self, request, pk):
         try:
