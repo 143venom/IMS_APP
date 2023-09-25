@@ -5,6 +5,7 @@ from .views import *
 urlpatterns = [
     path('company_info/',CompanyInfoApiView.as_view(),name='company info'),
     path('company_info/<int:pk>/',CompanyInfoIdApiView.as_view(),name='company info detail'),
+    # path('user-info/',UserInfo.as_view(),name='user info detail'),
     path('login/',login,name='login'),
     path('register/',register,name='register'),
     path('create-admin/',admin_create,name='admin-create'),
@@ -20,5 +21,5 @@ urlpatterns = [
     path('vendor_info/',VendorInfoApiView.as_view(),name='vendor list'),
     path('vendor_info/<int:pk>/',VendorInfoIdApiView.as_view(),name='vendor list detail'),
     path('purchase_info/',PurchaseInfoApiView.as_view(),name='purhase list'),
-    path('purchase_info/<int:pk>/',PurchaseInfoIdApiView.as_view(),name='purhase list detail')
+    path('purchase_info/<int:pk>/',PurchaseInfoIdApiView.as_view(),name='purhase list detail'),
 ]

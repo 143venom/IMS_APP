@@ -5,7 +5,7 @@ from django.contrib.auth.models import AbstractUser
 class CompanyInfo(models.Model):
     name = models.CharField(max_length=300)
     description = models.TextField()
-    logo = models.ImageField(null=True,blank=True)
+    logo = models.ImageField(null=True,blank=True,upload_to='company/')
     address = models.TextField()
     email = models.EmailField(unique=True)
     contact_no = models.IntegerField() 
@@ -16,7 +16,7 @@ class CompanyInfo(models.Model):
 class UserInfo(AbstractUser):
     email = models.EmailField(unique=True)
     password = models.CharField(max_length=200)
-    username = models.CharField(unique=True, max_length=200)
+    username = models.CharField( max_length=200, default='username')
     company_info = models.ForeignKey(CompanyInfo, on_delete=models.CASCADE, null=True)
 
     USERNAME_FIELD = 'email'

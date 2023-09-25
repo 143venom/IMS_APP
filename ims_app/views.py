@@ -12,7 +12,7 @@ from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import Group
 from .permissions import CustomModelPermission
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters
+from rest_framework import filters,status
 
 # Create your views here.
 # @api_view(['GET'])
@@ -34,7 +34,7 @@ def login(request):
                         
     
 @api_view(['POST'])
-# @permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated])
 def register(request):
     password = request.data.get('password')
     group_id = request.data.get('group')
@@ -54,12 +54,19 @@ def register(request):
     else:
         return Response({'error':serializer.errors})
     
+# @api_view(['GET'])
+# def admin_list(self, request):
+#     queryset = UserInfo.objects.all()
+#     admin_object = self.get_queryset()
+#     serializer = UserInfoSerializer(many=True)
+#     return Response({'data':serializer.data})
+    
 @api_view(['POST'])
 @permission_classes([IsAuthenticated,IsAdminUser])
 def admin_create(request):
     password = request.data.get('password')
     try:
-        group_object = Group.objects.get(name='Admin')
+        group_object = Group.objects.get(id=4)
     except:
         return Response({'error':'No such groups!'})
     hash_password = make_password(password)
@@ -97,6 +104,7 @@ class CompanyInfoApiView(GenericAPIView):
             return Response({'error':serializer.errors})
         
 class CompanyInfoIdApiView(GenericAPIView):
+    queryset_model = CompanyInfo
     queryset = CompanyInfo.objects.all()
     serializer_class = CompanyInfoSerializer
     permission_classes = [IsAuthenticated,CustomModelPermission]
@@ -146,8 +154,8 @@ class ProductTypeApiView(GenericAPIView):
     queryset = ProductType.objects.all()
     serializer_class = ProductTypeSerializer
     filter_backends = [DjangoFilterBackend,filters.SearchFilter]
-    # filterset_fields = ['address']
-    search_fields = ['name']
+    filterset_fields = ['type']
+    search_fields = ['name','type']
     permission_classes = [IsAuthenticated,CustomModelPermission]
 
     def post(self, request):
@@ -205,8 +213,8 @@ class ProductsApiView(GenericAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductsSerializer
     filter_backends = [DjangoFilterBackend,filters.SearchFilter]
-    # filterset_fields = ['address']
-    search_fields = ['name','discription']
+    filterset_fields = ['type']
+    search_fields = ['name','discription','type']
     permission_classes = [IsAuthenticated,CustomModelPermission]
 
     def post(self,request):
@@ -260,14 +268,17 @@ class ProductInfoIdApiView(GenericAPIView):
 
 
 class BuyerInfoApiView(GenericAPIView):
+    queryset_model = BuyerInfo
     queryset = BuyerInfo.objects.all()
     serializer_class = BuyerInfoSerializer
     filter_backends = [DjangoFilterBackend,filters.SearchFilter]
-    # filterset_fields = ['address']
+    filterset_fields = ['company']
     search_fields = ['name','address','email','contact_no']
     permission_classes = [IsAuthenticated,CustomModelPermission]
 
     def post(self,request):
+        company_info = request.user.company_info.id
+        request.data['company'] = company_info
         serializer = BuyerInfoSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -276,7 +287,8 @@ class BuyerInfoApiView(GenericAPIView):
             return Response({'error':serializer.errors})
         
     def get(self, request):
-        buyer_info_objects = self.get_queryset()
+        buyer_info_objects = self.get_queryset
+        buyer_info_objects = BuyerInfo.objects.filter(company=request.user.company_info.id)
         filter_object = self.filter_queryset(buyer_info_objects)
         serializer = BuyerInfoSerializer(filter_object, many=True)
         return Response({'data':serializer.data})
@@ -320,11 +332,13 @@ class SellerInfoApiView(GenericAPIView):
     queryset = SellerInfo.objects.all()
     serializer_class = SellerInfoSerializer
     filter_backends = [DjangoFilterBackend,filters.SearchFilter]
-    # filterset_fields = ['address']
-    search_fields = ['product','seller']
+    filterset_fields = ['company']
+    search_fields = ['product','seller','company']
     permission_classes = [IsAuthenticated,CustomModelPermission]
 
     def post(self, request):
+        company_info = request.user.company_info.id
+        request.data['company'] = company_info
         serializer = SellerInfoSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -333,10 +347,22 @@ class SellerInfoApiView(GenericAPIView):
             return Response({'data':serializer.errors})
         
     def get(self, request):
-        seller_info_objects = self.get_queryset()
-        filter_objects = self.filter_queryset(seller_info_objects)
-        serializer = SellerInfoSerializer(filter_objects,maney=True)
-        return Response({'data':serializer.data})
+        try:
+            company_info = request.user.company_info
+
+            if company_info is None:
+                return Response({'error': 'Company info not found for the user.'}, status=status.HTTP_404_NOT_FOUND)
+
+            seller_info_objects = SellerInfo.objects.filter(company=company_info.id)
+            filter_objects = self.filter_queryset(seller_info_objects)
+            serializer = VenderInfoSerializer(filter_objects, many=True)
+
+            return Response({'data': serializer.data}, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+        
     
 
 class SellerInfoIdApiView(GenericAPIView):
@@ -384,6 +410,8 @@ class VendorInfoApiView(GenericAPIView):
     permission_classes = [IsAuthenticated,CustomModelPermission]
 
     def post(self, request):
+        company_info = request.user.company_info.id
+        request.data['company'] = company_info
         serializer = VenderInfoSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -392,13 +420,14 @@ class VendorInfoApiView(GenericAPIView):
             return Response({'erroe':serializer.errors})
         
     def get(self,request):
-        vendor_info_object = self.get_queryset()
-        filter_objects = self.filter_queryset(vendor_info_object)
-        serializer = VenderInfoSerializer(filter_objects,many=True)
+        vendor_info_objects = self.get_queryset()
+        filter_objects = self.filter_queryset(vendor_info_objects)
+        serializer = VenderInfoSerializer(filter_objects, many=True)
         return Response({'data':serializer.data})
     
 
 class VendorInfoIdApiView(GenericAPIView):
+    queryset_model = VendorInfo
     queryset = VendorInfo.objects.all()
     serializer_class = VenderInfoSerializer
     permission_classes = [IsAuthenticated,CustomModelPermission]
@@ -442,6 +471,8 @@ class PurchaseInfoApiView(GenericAPIView):
     permission_classes = [IsAuthenticated,CustomModelPermission]
 
     def post(self,request):
+        company_info = request.user.company_info.id
+        request.data['company'] = company_info
         serializer = PurchaseInfoSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
